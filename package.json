@@ -26,8 +26,9 @@
     "@types/react-router-dom": "^5.3.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.9.4",
+    "react-router-dom": "^6.30.1",
     "react-scripts": "5.0.1",
+    "scheduler": "^0.27.0",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
@@ -56,6 +57,11 @@
     "extends": [
       "react-app",
       "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@fluentui|@griffel|@swc)/)"
     ]
   },
   "devDependencies": {
