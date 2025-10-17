@@ -88,13 +88,33 @@ The build artifacts will be stored in the `build/` directory.
 ## 🚀 Deployment
 
 ### GitHub Actions (Recommended)
-Push to `main` branch triggers automatic deployment via GitHub Actions to:
-- **Primary**: Azure Static Web Apps
-- **Fallback**: Netlify
+The project supports multiple deployment targets:
+
+#### GitHub Pages (Demo/Development)
+- **URL**: [https://365evergreen.github.io/learn-with-365](https://365evergreen.github.io/learn-with-365)
+- **Trigger**: Automatic on push to `main` branch
+- **Setup**: No additional configuration required
+
+#### Azure Static Web Apps (Production)
+- **URL**: Custom domain supported
+- **Trigger**: Manual workflow or on-demand
+- **Setup**: Configure Azure secrets in GitHub repository settings
+
+#### Netlify (Alternative)
+- **URL**: Custom domain supported  
+- **Trigger**: Manual workflow or on-demand
+- **Setup**: Configure Netlify secrets in GitHub repository settings
 
 **Setup**: Configure secrets in GitHub repository settings (see [GitHub Secrets Guide](./docs/GITHUB_SECRETS.md))
 
 ### Manual Deployment Options
+
+#### GitHub Pages
+```bash
+npm run deploy
+# or
+npm run deploy:gh-pages
+```
 
 #### Azure Static Web Apps
 ```bash

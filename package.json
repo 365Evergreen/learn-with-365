@@ -2,7 +2,7 @@
   "name": "learn-with-365",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/365Evergreen/learn-with-365",
+  "homepage": "https://365evergreen.github.io/learn-with-365",
   "repository": {
     "type": "git",
     "url": "https://github.com/365Evergreen/learn-with-365.git"
@@ -44,6 +44,9 @@
     "start:docker": "docker run -p 3000:80 elearning-platform",
     "dev:docker": "docker-compose --profile dev up",
     "analyze": "npm run build && npx serve -s build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "deploy:gh-pages": "gh-pages -d build",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
@@ -54,6 +57,9 @@
       "react-app",
       "react-app/jest"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^6.2.0"
   },
   "browserslist": {
     "production": [
