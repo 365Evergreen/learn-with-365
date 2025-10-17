@@ -71,18 +71,46 @@ export const azureB2CConfig: Configuration = {
   },
 };
 
-// Login request scopes
+// Login request scopes for Azure AD (Host Tenant) - Content Editors
 export const azureAdLoginRequest = {
-  scopes: ['User.Read', 'openid', 'profile'],
+  scopes: [
+    'User.Read',
+    'openid', 
+    'profile',
+    'Sites.ReadWrite.All',    // SharePoint sites read/write access
+    'Files.ReadWrite.All',    // SharePoint files read/write access
+    'Group.ReadWrite.All',    // SharePoint groups management
+    'Directory.Read.All'      // Directory read access for user lookup
+  ],
 };
 
+// Additional scopes for SharePoint operations (requested on-demand)
+export const sharePointScopes = {
+  sitesReadWrite: ['Sites.ReadWrite.All'],
+  filesReadWrite: ['Files.ReadWrite.All'],
+  listsReadWrite: ['Sites.ReadWrite.All'],
+  pagesReadWrite: ['Sites.ReadWrite.All'],
+  groupsReadWrite: ['Group.ReadWrite.All'],
+  termStoreReadWrite: ['TermStore.ReadWrite.All'],
+  searchRead: ['Sites.Read.All']
+};
+
+// Login request scopes for Azure B2C - Content Consumers (Read-only)
 export const azureB2CLoginRequest = {
-  scopes: ['openid', 'profile'],
+  scopes: [
+    'openid', 
+    'profile',
+    // Note: B2C users get read-only access through the application's service principal
+    // The app will use its own permissions to fetch SharePoint content for B2C users
+  ],
 };
 
-// Graph API scopes for Azure AD users
+// Graph API configuration
 export const graphConfig = {
   graphMeEndpoint: 'https://graph.microsoft.com/v1.0/me',
+  sharePointSiteEndpoint: 'https://graph.microsoft.com/v1.0/sites',
+  sharePointMyFilesEndpoint: 'https://graph.microsoft.com/v1.0/me/drive',
+  sharePointSearchEndpoint: 'https://graph.microsoft.com/v1.0/search/query'
 };
 
 // Authentication provider types

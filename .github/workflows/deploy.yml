@@ -29,13 +29,22 @@ jobs:
 
     - name: Create environment file
       run: |
+        echo "# Azure AD (Host Tenant) - Content Editors" >> .env.production
         echo "REACT_APP_AZURE_AD_CLIENT_ID=${{ secrets.AZURE_AD_CLIENT_ID }}" >> .env.production
         echo "REACT_APP_AZURE_AD_TENANT_ID=${{ secrets.AZURE_AD_TENANT_ID }}" >> .env.production
+        echo "" >> .env.production
+        echo "# Azure B2C - Content Consumers" >> .env.production
         echo "REACT_APP_B2C_CLIENT_ID=${{ secrets.B2C_CLIENT_ID }}" >> .env.production
         echo "REACT_APP_B2C_AUTHORITY=${{ secrets.B2C_AUTHORITY }}" >> .env.production
         echo "REACT_APP_B2C_KNOWN_AUTHORITY=${{ secrets.B2C_KNOWN_AUTHORITY }}" >> .env.production
+        echo "" >> .env.production
+        echo "# Application URLs" >> .env.production
         echo "REACT_APP_REDIRECT_URI=${{ secrets.REDIRECT_URI }}" >> .env.production
         echo "REACT_APP_POST_LOGOUT_REDIRECT_URI=${{ secrets.POST_LOGOUT_REDIRECT_URI }}" >> .env.production
+        echo "" >> .env.production
+        echo "# SharePoint Configuration" >> .env.production
+        echo "REACT_APP_SHAREPOINT_SITE_URL=${{ secrets.SHAREPOINT_SITE_URL }}" >> .env.production
+        echo "REACT_APP_SHAREPOINT_LIST_ID=${{ secrets.SHAREPOINT_LIST_ID }}" >> .env.production
 
     - name: Run tests
       run: npm test -- --coverage --ci --watchAll=false
@@ -56,6 +65,10 @@ jobs:
         app_location: "/"
         output_location: "build"
         skip_app_build: true
+      env:
+        # Ensure environment variables are available during deployment
+        REACT_APP_AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+        REACT_APP_AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
 
     - name: Deploy to Netlify (Alternative)
       if: github.event_name == 'push' && !secrets.AZURE_STATIC_WEB_APPS_API_TOKEN

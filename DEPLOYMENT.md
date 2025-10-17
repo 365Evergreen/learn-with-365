@@ -5,12 +5,14 @@ This guide covers multiple deployment options for the e-learning platform with d
 ## 📋 Prerequisites
 
 ### Required Tools
+
 - **Node.js 18+** - [Download](https://nodejs.org/)
 - **npm** - Included with Node.js
 - **PowerShell** - For deployment scripts
 - **Git** - For version control
 
 ### Azure Requirements
+
 - **Azure Subscription** - For Static Web Apps or App Service
 - **Azure AD Tenant** - For organizational authentication
 - **Azure AD B2C Tenant** - For consumer authentication
@@ -18,6 +20,7 @@ This guide covers multiple deployment options for the e-learning platform with d
 ## ⚙️ Environment Setup
 
 ### 1. Clone and Install
+
 ```bash
 git clone <your-repository>
 cd learn-with-fletch
@@ -27,11 +30,13 @@ npm install --legacy-peer-deps
 ### 2. Environment Configuration
 
 Copy environment template:
+
 ```bash
 cp .env.example .env.production
 ```
 
 Update `.env.production` with your values:
+
 ```env
 # Azure AD (Host Tenant)
 REACT_APP_AZURE_AD_CLIENT_ID=your-azure-ad-client-id
@@ -52,6 +57,7 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
 ### Option 1: Azure Static Web Apps (Recommended)
 
 #### Benefits
+
 - ✅ **Automatic HTTPS**
 - ✅ **Global CDN**
 - ✅ **Integrated Azure AD**
@@ -62,6 +68,7 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
 #### Setup Steps
 
 1. **Create Static Web App in Azure**
+
    ```bash
    # Using Azure CLI
    az staticwebapp create \
@@ -76,7 +83,8 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
 
 2. **Configure GitHub Secrets**
    Go to GitHub Repository → Settings → Secrets and add:
-   ```
+
+   ```env
    AZURE_STATIC_WEB_APPS_API_TOKEN=<deployment-token>
    AZURE_AD_CLIENT_ID=<client-id>
    AZURE_AD_TENANT_ID=<tenant-id>
@@ -88,6 +96,7 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
    ```
 
 3. **Deploy**
+
    ```bash
    npm run deploy:azure
    ```
@@ -98,13 +107,14 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
 
 ### Option 2: Netlify
 
-#### Benefits
+#### Benefits of Netlify
+
 - ✅ **Simple deployment**
 - ✅ **Branch previews**
 - ✅ **Form handling**
 - ✅ **Edge functions**
 
-#### Setup Steps
+#### Setup Netlify
 
 1. **Connect to Netlify**
    - Go to [Netlify](https://netlify.com)
@@ -115,7 +125,8 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
 
 2. **Configure Environment Variables**
    In Netlify dashboard → Site settings → Environment variables:
-   ```
+
+   ``` text
    REACT_APP_AZURE_AD_CLIENT_ID=<client-id>
    REACT_APP_AZURE_AD_TENANT_ID=<tenant-id>
    REACT_APP_B2C_CLIENT_ID=<b2c-client-id>
@@ -126,13 +137,15 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
    ```
 
 3. **Deploy**
+
    ```bash
    npm run deploy:netlify
    ```
 
 ### Option 3: Docker Deployment
 
-#### Benefits
+#### Benefits of Docker
+
 - ✅ **Consistent environments**
 - ✅ **Easy scaling**
 - ✅ **Local development**
@@ -140,21 +153,25 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
 #### Setup Steps
 
 1. **Build Docker Image**
+
    ```bash
    npm run build:docker
    ```
 
 2. **Run Container**
+
    ```bash
    npm run start:docker
    ```
 
 3. **Docker Compose (Development)**
+
    ```bash
    npm run dev:docker
    ```
 
 4. **Deploy to Cloud**
+
    ```bash
    # Azure Container Instances
    az container create \
@@ -172,6 +189,7 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
 #### For shared hosting, VPS, or dedicated servers
 
 1. **Build Application**
+
    ```bash
    npm run build
    ```
@@ -181,8 +199,9 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
    - Configure web server for SPA routing
 
 3. **Web Server Configuration**
-   
+
    **Apache (.htaccess)**
+
    ```apache
    RewriteEngine On
    RewriteBase /
@@ -191,8 +210,9 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
    RewriteCond %{REQUEST_FILENAME} !-d
    RewriteRule . /index.html [L]
    ```
-   
+
    **Nginx**
+
    ```nginx
    location / {
      try_files $uri $uri/ /index.html;
@@ -238,6 +258,7 @@ REACT_APP_POST_LOGOUT_REDIRECT_URI=https://yourdomain.com
 ### GitHub Actions (Automatic)
 
 The included workflow (`.github/workflows/deploy.yml`) automatically:
+
 - ✅ Runs on push to main branch
 - ✅ Installs dependencies
 - ✅ Runs tests
@@ -265,6 +286,7 @@ pwsh scripts/deploy.ps1 -Target docker -Verbose
 ### Custom Domain Setup
 
 1. **DNS Configuration**
+
    ```
    # For Azure Static Web Apps
    CNAME www.yourdomain.com → <app-name>.azurestaticapps.net
@@ -293,6 +315,7 @@ npm run build
 ### Performance Optimization
 
 1. **Bundle Analysis**
+
    ```bash
    npm run analyze
    ```
@@ -308,12 +331,14 @@ npm run build
 ### Common Issues
 
 1. **Authentication Redirect Issues**
+
    ```
    Problem: AADSTS50011 redirect URI mismatch
    Solution: Add exact redirect URI to Azure app registration
    ```
 
 2. **Build Failures**
+
    ```bash
    # Clear cache and reinstall
    rm -rf node_modules package-lock.json
@@ -321,6 +346,7 @@ npm run build
    ```
 
 3. **Docker Issues**
+
    ```bash
    # Check Docker daemon
    docker --version
@@ -330,6 +356,7 @@ npm run build
    ```
 
 4. **Environment Variables Not Loading**
+
    ```bash
    # Check environment file exists
    ls -la .env*
@@ -358,6 +385,7 @@ npm run lint
 ### Application Insights (Azure)
 
 1. **Add to index.html**
+
    ```html
    <script>
      var appInsights = window.appInsights || function(config) {
@@ -380,6 +408,7 @@ npm run lint
 ## 🚀 Production Checklist
 
 ### Pre-Deployment
+
 - [ ] Environment variables configured
 - [ ] Azure AD apps registered with correct redirect URIs
 - [ ] B2C user flows tested
@@ -388,6 +417,7 @@ npm run lint
 - [ ] Security headers configured
 
 ### Post-Deployment
+
 - [ ] Application loads correctly
 - [ ] Authentication flows work
 - [ ] Both Azure AD and B2C login tested
@@ -399,6 +429,7 @@ npm run lint
 ## 📞 Support
 
 For deployment issues:
+
 1. Check this guide first
 2. Review Azure/Netlify documentation
 3. Check GitHub Issues

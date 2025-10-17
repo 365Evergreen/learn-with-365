@@ -2,10 +2,56 @@
 
 ## Overview
 
-This e-learning platform supports **dual authentication** for two types of users:
+This e-learning platform supports **dual authentication** for two types of users with different SharePoint permissions:
 
-1. **Host Tenant Users** - Organizational users authenticated via Azure AD
-2. **B2C Tenant Users** - Personal/external users authenticated via Azure AD B2C
+1. **Host Tenant Users** - Organizational content editors (Azure AD) with read/write SharePoint access
+2. **B2C Tenant Users** - External content consumers (Azure B2C) with read-only access via service principal
+
+## 🔐 API Permissions & Access Levels
+
+### Host Tenant Users (Content Editors)
+**Purpose**: Create, edit, and manage SharePoint learning content
+
+**Required API Permissions**:
+- `User.Read` - Basic profile access
+- `Sites.ReadWrite.All` - SharePoint sites read/write access
+- `Files.ReadWrite.All` - SharePoint files read/write access  
+- `Group.ReadWrite.All` - SharePoint groups management
+- `Directory.Read.All` - User lookup and assignment
+
+**What they can do**:
+- ✅ Create learning modules and courses
+- ✅ Upload and manage course materials
+- ✅ Manage user access and permissions
+- ✅ Edit course pages and content
+- ✅ Organize content with categories and tags
+
+### B2C Users (Content Consumers)
+**Purpose**: View and consume published learning content (read-only)
+
+**Authentication Scopes**:
+- `openid` - Basic authentication
+- `profile` - User profile information
+
+**Access Pattern**:
+```
+B2C User → Azure B2C → App Backend → Service Principal → SharePoint (Read-Only)
+```
+
+**What they can do**:
+- ✅ View published learning content
+- ✅ Access approved course materials  
+- ✅ Track learning progress
+- ❌ Cannot edit or create content
+- ❌ No direct SharePoint access
+
+### Service Principal (for B2C users)
+**Required Permissions**:
+- `Sites.Read.All` - Read SharePoint sites for published content
+- `Files.Read.All` - Read learning materials and documents
+- `Group.Read.All` - Read group memberships for content filtering
+
+> **📖 For detailed API permissions documentation, see**: [API_PERMISSIONS.md](../../docs/API_PERMISSIONS.md)
 
 ## 🔧 Authentication Architecture
 
@@ -179,16 +225,19 @@ function Header() {
 ## 🔒 Security Features
 
 ### Token Management
+
 - **Automatic Token Renewal** - MSAL handles token refresh
 - **Secure Storage** - Tokens stored in localStorage with encryption
 - **Silent Authentication** - Seamless re-authentication on app reload
 
 ### Authorization
+
 - **Role-Based Access** - Support for user roles and permissions
 - **Route Protection** - AuthGuard component for protected routes
 - **Provider-Specific Access** - Restrict features by user type
 
 ### Error Handling
+
 - **Network Failures** - Graceful handling of connection issues
 - **Invalid Tokens** - Automatic re-authentication flow
 - **Permission Denied** - Clear error messages and fallbacks
@@ -196,23 +245,28 @@ function Header() {
 ## 🎨 UI Components
 
 ### Login Component
+
 ```tsx
 <Login />
 ```
+
 - Provider selection (Azure AD vs B2C)
 - Error handling and loading states
 - Responsive design with Fluent UI
 
 ### User Profile Component
+
 ```tsx
 <UserProfile compact={false} />
 ```
+
 - User information display
 - Provider switching
 - Logout functionality
 - Settings access
 
 ### Auth Guard Component
+
 ```tsx
 <AuthGuard 
   requireAuth={true}
@@ -226,11 +280,13 @@ function Header() {
 ## 🔄 Authentication Flows
 
 ### Initial App Load
+
 1. Check for existing tokens in both providers
 2. Attempt silent authentication
 3. Redirect to login if no valid tokens
 
 ### Login Flow
+
 1. User selects provider (Azure AD or B2C)
 2. Redirect to Microsoft authentication
 3. Return with tokens
@@ -238,12 +294,14 @@ function Header() {
 5. Set authentication state
 
 ### Provider Switching
+
 1. User initiates provider switch
 2. Clear current authentication
 3. Redirect to new provider login
 4. Complete authentication with new provider
 
 ### Logout Flow
+
 1. Clear MSAL tokens
 2. Clear application state
 3. Redirect to logout endpoint
@@ -252,6 +310,7 @@ function Header() {
 ## 🛠️ Development Tips
 
 ### Testing Authentication
+
 ```bash
 # Run with environment variables
 REACT_APP_AZURE_AD_CLIENT_ID=test-id npm start
@@ -261,11 +320,13 @@ REACT_APP_AZURE_AD_CLIENT_ID=test-id npm start
 ```
 
 ### Debugging
+
 - Enable MSAL logging in development
 - Check browser console for authentication errors
 - Use Azure AD logs for troubleshooting
 
 ### Common Issues
+
 1. **Redirect URI Mismatch** - Ensure URIs match in Azure and code
 2. **CORS Errors** - Configure allowed origins in Azure
 3. **Token Refresh Failures** - Check token lifetime settings
@@ -280,12 +341,14 @@ REACT_APP_AZURE_AD_CLIENT_ID=test-id npm start
 ## 🔄 Migration Guide
 
 ### From Basic Auth
+
 1. Wrap app with `AuthContextProvider`
 2. Replace login forms with `<Login />` component
 3. Add `<AuthGuard>` to protected routes
 4. Update user state management to use `useAuth()`
 
 ### Adding New Providers
+
 1. Update `AuthProvider` enum in `authConfig.ts`
 2. Add configuration for new provider
 3. Update `AuthContext` to handle new provider
