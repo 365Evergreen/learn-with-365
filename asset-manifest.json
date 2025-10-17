@@ -1,12 +1,12 @@
 {
   "files": {
     "main.css": "/learn-with-365/static/css/main.7662a4b3.css",
-    "main.js": "/learn-with-365/static/js/main.7c268226.js",
+    "main.js": "/learn-with-365/static/js/main.257bb130.js",
     "static/js/206.19c7e9f5.chunk.js": "/learn-with-365/static/js/206.19c7e9f5.chunk.js",
     "index.html": "/learn-with-365/index.html"
   },
   "entrypoints": [
     "static/css/main.7662a4b3.css",
-    "static/js/main.7c268226.js"
+    "static/js/main.257bb130.js"
   ]
 }
