@@ -10,7 +10,9 @@ const SHAREPOINT_LISTS = {
   CERTIFICATES: 'Certificates'
 };
 
-// SharePoint Site Configuration
+import { AuthenticationResult } from '@azure/msal-browser';
+
+// SharePoint site configuration
 const SHAREPOINT_SITE = {
   // Update with your actual SharePoint site details
   TENANT: '365evergreen', // Your tenant name
@@ -124,7 +126,7 @@ export class SharePointService {
       const siteUrl = `${SHAREPOINT_SITE.TENANT}.sharepoint.com:/sites/${SHAREPOINT_SITE.SITE_NAME}`;
       const response = await this.makeGraphRequest(`/sites/${siteUrl}`);
       this.siteId = response.id;
-      return this.siteId;
+      return this.siteId as string;
     } catch (error) {
       console.error('Error getting site ID:', error);
       throw new Error('Could not find SharePoint site. Please check site configuration.');
@@ -392,7 +394,7 @@ export class SharePointService {
       
       // Simple recommendation: courses in same categories as completed courses
       const completedCourses = allCourses.filter(c => completedCourseIds.includes(c.Id));
-      const completedCategories = [...new Set(completedCourses.map(c => c.Category))];
+      const completedCategories = Array.from(new Set(completedCourses.map(c => c.Category)));
       
       const recommended = allCourses
         .filter(course => 

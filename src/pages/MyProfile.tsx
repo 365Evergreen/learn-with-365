@@ -14,18 +14,15 @@ import {
   Avatar,
   ProgressBar,
   Divider,
-  MessageBar,
-  MessageBarType
+  MessageBar
 } from '@fluentui/react-components';
 import { 
-  PersonRegular, 
   BookRegular, 
   CertificateRegular,
   ClockRegular,
-  StarRegular,
   TrophyRegular,
   ErrorCircleRegular,
-  RefreshRegular
+  ArrowClockwiseRegular
 } from '@fluentui/react-icons';
 import './MyProfile.css';
 
@@ -137,7 +134,7 @@ const MyProfile: React.FC = () => {
             <Text>Error loading profile data: {sharepointError}</Text>
             <Button 
               size="small" 
-              icon={<RefreshRegular />}
+              icon={<ArrowClockwiseRegular />}
               onClick={() => {
                 clearError();
                 loadUserData();
