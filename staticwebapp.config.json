@@ -11,15 +11,11 @@
     {
       "route": "/components/*",
       "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/*",
-      "rewrite": "/index.html"
     }
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,ico,svg}", "/api/*"]
+    "exclude": ["/images/*.{png,jpg,ico,svg}", "/api/*", "/static/*", "*.js", "*.css", "*.json", "*.ico", "*.png", "*.jpg", "*.svg"]
   },
   "responseOverrides": {
     "401": {
