@@ -7,10 +7,11 @@ export const azureAdConfig: Configuration = {
     authority: `https://login.microsoftonline.com/${process.env.REACT_APP_AZURE_AD_TENANT_ID || 'your-tenant-id'}`,
     redirectUri: process.env.REACT_APP_REDIRECT_URI || window.location.origin,
     postLogoutRedirectUri: process.env.REACT_APP_POST_LOGOUT_REDIRECT_URI || window.location.origin,
+    navigateToLoginRequestUrl: false, // Prevents redirect loops
   },
   cache: {
-    cacheLocation: 'localStorage',
-    storeAuthStateInCookie: false,
+    cacheLocation: 'sessionStorage', // Better for SSO
+    storeAuthStateInCookie: true, // Helps with SSO across browser sessions
   },
   system: {
     loggerOptions: {
@@ -82,6 +83,7 @@ export const azureAdLoginRequest = {
     'Group.ReadWrite.All',    // SharePoint groups management
     'Directory.Read.All'      // Directory read access for user lookup
   ],
+  prompt: 'select_account', // Allows SSO but shows account picker if multiple accounts
 };
 
 // Additional scopes for SharePoint operations (requested on-demand)

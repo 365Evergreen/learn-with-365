@@ -111,6 +111,28 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
       setCurrentMsalInstance(msalInstance);
       setAuthProvider(provider);
 
+      // First, try silent authentication (SSO)
+      const accounts = msalInstance.getAllAccounts();
+      
+      if (accounts.length > 0) {
+        try {
+          // Try to acquire token silently (SSO)
+          const silentRequest = {
+            ...loginRequest,
+            account: accounts[0],
+            prompt: 'none' // This ensures we don't show login UI if already signed in
+          };
+          
+          const response = await msalInstance.acquireTokenSilent(silentRequest);
+          await processAuthResult(response, userType);
+          return; // Success! No need for interactive login
+        } catch (silentError: any) {
+          console.log('Silent login failed, trying interactive login:', silentError);
+          // Silent auth failed, fall back to interactive login
+        }
+      }
+
+      // Interactive login as fallback
       const response = await msalInstance.loginPopup(loginRequest);
       await processAuthResult(response, userType);
     } catch (error: any) {
