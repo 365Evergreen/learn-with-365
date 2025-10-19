@@ -106,7 +106,10 @@ const Header: React.FC = () => {
     { path: '/courses', label: 'Courses', icon: Book24Regular },
     { path: '/about', label: 'About', icon: Info24Regular },
     { path: '/contact', label: 'Contact', icon: Mail24Regular },
-    ...(isAuthenticated ? [{ path: '/components', label: 'Components', icon: Apps24Regular }] : []),
+    ...(isAuthenticated ? [
+      { path: '/my-profile', label: 'My Profile', icon: Person24Regular },
+      { path: '/components', label: 'Components', icon: Apps24Regular }
+    ] : []),
   ];
 
   return (

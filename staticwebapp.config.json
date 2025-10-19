@@ -5,7 +5,11 @@
       "allowedRoles": ["authenticated"]
     },
     {
-      "route": "/courses/*",
+      "route": "/profile/*",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/my-profile",
       "allowedRoles": ["authenticated"]
     },
     {

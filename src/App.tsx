@@ -10,6 +10,7 @@ import Features from './pages/Features';
 import Contact from './pages/Contact';
 import ELearningHome from './pages/ELearningHome';
 import Courses from './pages/Courses';
+import MyProfile from './pages/MyProfile';
 import ComponentShowcase from './pages/ComponentShowcase';
 import './App.css';
 
@@ -25,11 +26,12 @@ function App() {
                 <Routes>
                   <Route path="/" element={<ELearningHome />} />
                   <Route path="/home" element={<Home />} />
+                  <Route path="/courses" element={<Courses />} />
                   <Route 
-                    path="/courses" 
+                    path="/my-profile" 
                     element={
                       <AuthGuard>
-                        <Courses />
+                        <MyProfile />
                       </AuthGuard>
                     } 
                   />

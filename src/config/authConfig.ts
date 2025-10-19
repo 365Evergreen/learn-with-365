@@ -83,7 +83,10 @@ export const azureAdLoginRequest = {
     'Group.ReadWrite.All',    // SharePoint groups management
     'Directory.Read.All'      // Directory read access for user lookup
   ],
-  prompt: 'select_account', // Allows SSO but shows account picker if multiple accounts
+  prompt: 'none', // Enable true SSO - no prompt if user is already signed in
+  extraQueryParameters: {
+    domain_hint: 'organizations' // Hint to use organizational accounts first
+  }
 };
 
 // Additional scopes for SharePoint operations (requested on-demand)
