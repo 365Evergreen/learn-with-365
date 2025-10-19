@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import useSharePointData, { UserCourseData } from '../hooks/useSharePointData';
+import { SharePointCourse } from '../services/SharePointService';
 import { 
   Card, 
   CardHeader, 
@@ -11,7 +13,9 @@ import {
   Spinner,
   Avatar,
   ProgressBar,
-  Divider
+  Divider,
+  MessageBar,
+  MessageBarType
 } from '@fluentui/react-components';
 import { 
   PersonRegular, 
@@ -19,53 +23,46 @@ import {
   CertificateRegular,
   ClockRegular,
   StarRegular,
-  TrophyRegular
+  TrophyRegular,
+  ErrorCircleRegular,
+  RefreshRegular
 } from '@fluentui/react-icons';
 import './MyProfile.css';
 
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  progress: number;
-  status: 'not-started' | 'in-progress' | 'completed';
-  completedDate?: string;
-  category: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  estimatedHours: number;
-  rating?: number;
-}
-
-interface UserStats {
-  coursesCompleted: number;
-  coursesInProgress: number;
-  totalHoursLearned: number;
-  certificatesEarned: number;
-  currentStreak: number;
-}
-
 const MyProfile: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
-  const [userCourses, setUserCourses] = useState<Course[]>([]);
-  const [recommendedCourses, setRecommendedCourses] = useState<Course[]>([]);
-  const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const {
+    getUserCourses,
+    getUserStats,
+    getRecommendedCourses,
+    enrollInCourse,
+    isLoading: sharepointLoading,
+    error: sharepointError,
+    clearError,
+    isReady
+  } = useSharePointData();
+
+  const [userCourses, setUserCourses] = useState<UserCourseData[]>([]);
+  const [recommendedCourses, setRecommendedCourses] = useState<SharePointCourse[]>([]);
+  const [userStats, setUserStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      loadUserData();
-    }
-  }, [isAuthenticated, user]);
-
   const loadUserData = async () => {
+    if (!isReady || !isAuthenticated || !user) return;
+    
     setIsLoading(true);
+    clearError();
+    
     try {
-      // Simulate API calls - replace with actual API calls
-      await Promise.all([
-        loadUserCourses(),
-        loadRecommendedCourses(),
-        loadUserStats()
+      const [courses, stats, recommended] = await Promise.all([
+        getUserCourses(),
+        getUserStats(),
+        getRecommendedCourses(5)
       ]);
+      
+      setUserCourses(courses);
+      setUserStats(stats);
+      setRecommendedCourses(recommended);
     } catch (error) {
       console.error('Error loading user data:', error);
     } finally {
@@ -73,104 +70,46 @@ const MyProfile: React.FC = () => {
     }
   };
 
-  const loadUserCourses = async () => {
-    // Mock data - replace with actual API call
-    const mockCourses: Course[] = [
-      {
-        id: '1',
-        title: 'Microsoft 365 Fundamentals',
-        description: 'Learn the basics of Microsoft 365 suite',
-        progress: 100,
-        status: 'completed',
-        completedDate: '2025-10-15',
-        category: 'Microsoft 365',
-        difficulty: 'Beginner',
-        estimatedHours: 8,
-        rating: 5
-      },
-      {
-        id: '2',
-        title: 'SharePoint Advanced Features',
-        description: 'Master advanced SharePoint capabilities',
-        progress: 65,
-        status: 'in-progress',
-        category: 'SharePoint',
-        difficulty: 'Advanced',
-        estimatedHours: 12
-      },
-      {
-        id: '3',
-        title: 'Power Platform Basics',
-        description: 'Introduction to Power Apps, Power Automate, and Power BI',
-        progress: 0,
-        status: 'not-started',
-        category: 'Power Platform',
-        difficulty: 'Intermediate',
-        estimatedHours: 10
-      }
-    ];
-    setUserCourses(mockCourses);
-  };
+  useEffect(() => {
+    loadUserData();
+  }, [isAuthenticated, user, isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadRecommendedCourses = async () => {
-    // Mock data - replace with actual API call
-    const mockRecommended: Course[] = [
-      {
-        id: '4',
-        title: 'Teams Administration',
-        description: 'Learn to manage Microsoft Teams environments',
-        progress: 0,
-        status: 'not-started',
-        category: 'Microsoft Teams',
-        difficulty: 'Intermediate',
-        estimatedHours: 15
-      },
-      {
-        id: '5',
-        title: 'Azure Active Directory Basics',
-        description: 'Understanding identity and access management',
-        progress: 0,
-        status: 'not-started',
-        category: 'Azure',
-        difficulty: 'Intermediate',
-        estimatedHours: 8
-      }
-    ];
-    setRecommendedCourses(mockRecommended);
-  };
-
-  const loadUserStats = async () => {
-    // Mock data - replace with actual API call
-    const mockStats: UserStats = {
-      coursesCompleted: 5,
-      coursesInProgress: 2,
-      totalHoursLearned: 47,
-      certificatesEarned: 3,
-      currentStreak: 7
-    };
-    setUserStats(mockStats);
-  };
-
-  const getCourseStatusBadge = (status: Course['status']) => {
-    switch (status) {
-      case 'completed':
-        return <Badge color="success" icon={<CertificateRegular />}>Completed</Badge>;
-      case 'in-progress':
-        return <Badge color="warning" icon={<ClockRegular />}>In Progress</Badge>;
-      case 'not-started':
-        return <Badge color="subtle" icon={<BookRegular />}>Not Started</Badge>;
-      default:
-        return null;
+  const handleEnrollInCourse = async (courseId: number) => {
+    const success = await enrollInCourse(courseId);
+    if (success) {
+      // Reload data to show new enrollment
+      loadUserData();
     }
   };
 
-  const getDifficultyColor = (difficulty: Course['difficulty']) => {
+  const getCourseStatusBadge = (progress: any) => {
+    if (!progress) {
+      return <Badge color="subtle" icon={<BookRegular />}>Not Started</Badge>;
+    }
+    
+    switch (progress.Status) {
+      case 'Completed':
+        return <Badge color="success" icon={<CertificateRegular />}>Completed</Badge>;
+      case 'In Progress':
+        return <Badge color="warning" icon={<ClockRegular />}>In Progress</Badge>;
+      case 'Not Started':
+      default:
+        return <Badge color="subtle" icon={<BookRegular />}>Not Started</Badge>;
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Beginner': return 'success';
       case 'Intermediate': return 'warning';
       case 'Advanced': return 'danger';
       default: return 'subtle';
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString();
   };
 
   if (!isAuthenticated) {
@@ -181,10 +120,33 @@ const MyProfile: React.FC = () => {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || sharepointLoading) {
     return (
       <div className="profile-container loading">
         <Spinner size="large" label="Loading your profile..." />
+      </div>
+    );
+  }
+
+  if (sharepointError) {
+    return (
+      <div className="profile-container">
+        <MessageBar intent="error" shape="square">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ErrorCircleRegular />
+            <Text>Error loading profile data: {sharepointError}</Text>
+            <Button 
+              size="small" 
+              icon={<RefreshRegular />}
+              onClick={() => {
+                clearError();
+                loadUserData();
+              }}
+            >
+              Retry
+            </Button>
+          </div>
+        </MessageBar>
       </div>
     );
   }
@@ -251,48 +213,46 @@ const MyProfile: React.FC = () => {
       <div className="section">
         <Text size={500} weight="bold" className="section-title">My Courses</Text>
         <div className="courses-grid">
-          {userCourses.map((course) => (
-            <Card key={course.id} className="course-card">
+          {userCourses.map((userCourse) => (
+            <Card key={userCourse.course.Id} className="course-card">
               <CardHeader
-                header={<Text weight="bold">{course.title}</Text>}
-                description={course.description}
-                action={getCourseStatusBadge(course.status)}
+                header={<Text weight="bold">{userCourse.course.Title}</Text>}
+                description={userCourse.course.Description}
+                action={getCourseStatusBadge(userCourse.progress)}
               />
               <CardPreview className="course-details">
                 <div className="course-meta">
-                  <Badge color={getDifficultyColor(course.difficulty)} size="small">
-                    {course.difficulty}
+                  <Badge color={getDifficultyColor(userCourse.course.Difficulty)} size="small">
+                    {userCourse.course.Difficulty}
                   </Badge>
-                  <Text size={200}>{course.estimatedHours}h</Text>
-                  <Text size={200}>{course.category}</Text>
+                  <Text size={200}>{userCourse.course.EstimatedHours}h</Text>
+                  <Text size={200}>{userCourse.course.Category}</Text>
                 </div>
-                {course.progress > 0 && (
+                {userCourse.progress && userCourse.progress.ProgressPercentage > 0 && (
                   <div className="progress-section">
-                    <Text size={200}>Progress: {course.progress}%</Text>
-                    <ProgressBar value={course.progress / 100} />
+                    <Text size={200}>Progress: {userCourse.progress.ProgressPercentage}%</Text>
+                    <ProgressBar value={userCourse.progress.ProgressPercentage / 100} />
                   </div>
                 )}
-                {course.rating && (
-                  <div className="rating">
-                    {[...Array(5)].map((_, i) => (
-                      <StarRegular
-                        key={i}
-                        className={i < course.rating! ? 'star-filled' : 'star-empty'}
-                      />
-                    ))}
-                  </div>
+                {userCourse.progress?.TimeSpent && (
+                  <Text size={200}>Time spent: {Math.floor(userCourse.progress.TimeSpent / 60)}h {userCourse.progress.TimeSpent % 60}m</Text>
                 )}
               </CardPreview>
               <CardFooter>
                 <Button appearance="primary" size="small">
-                  {course.status === 'completed' ? 'Review' : 'Continue'}
+                  {userCourse.progress?.Status === 'Completed' ? 'Review' : 'Continue'}
                 </Button>
-                {course.completedDate && (
-                  <Text size={200}>Completed: {course.completedDate}</Text>
+                {userCourse.progress?.CompletedDate && (
+                  <Text size={200}>Completed: {formatDate(userCourse.progress.CompletedDate)}</Text>
                 )}
               </CardFooter>
             </Card>
           ))}
+          {userCourses.length === 0 && (
+            <div className="no-courses">
+              <Text size={400}>No enrolled courses yet. Check out the recommended courses below!</Text>
+            </div>
+          )}
         </div>
       </div>
 
@@ -303,27 +263,36 @@ const MyProfile: React.FC = () => {
         <Text size={500} weight="bold" className="section-title">Recommended for You</Text>
         <div className="courses-grid">
           {recommendedCourses.map((course) => (
-            <Card key={course.id} className="course-card recommended">
+            <Card key={course.Id} className="course-card recommended">
               <CardHeader
-                header={<Text weight="bold">{course.title}</Text>}
-                description={course.description}
+                header={<Text weight="bold">{course.Title}</Text>}
+                description={course.Description}
               />
               <CardPreview className="course-details">
                 <div className="course-meta">
-                  <Badge color={getDifficultyColor(course.difficulty)} size="small">
-                    {course.difficulty}
+                  <Badge color={getDifficultyColor(course.Difficulty)} size="small">
+                    {course.Difficulty}
                   </Badge>
-                  <Text size={200}>{course.estimatedHours}h</Text>
-                  <Text size={200}>{course.category}</Text>
+                  <Text size={200}>{course.EstimatedHours}h</Text>
+                  <Text size={200}>{course.Category}</Text>
                 </div>
               </CardPreview>
               <CardFooter>
-                <Button appearance="primary" size="small">
+                <Button 
+                  appearance="primary" 
+                  size="small"
+                  onClick={() => handleEnrollInCourse(course.Id)}
+                >
                   Start Course
                 </Button>
               </CardFooter>
             </Card>
           ))}
+          {recommendedCourses.length === 0 && (
+            <div className="no-courses">
+              <Text size={400}>No recommendations available at this time.</Text>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -41,6 +41,11 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
   const [currentMsalInstance, setCurrentMsalInstance] = useState<PublicClientApplication>(msalInstanceAzureAD);
   const [error, setError] = useState<string | null>(null);
 
+  // Expose MSAL instance globally for SharePoint service
+  useEffect(() => {
+    (window as any).__msalInstance = currentMsalInstance;
+  }, [currentMsalInstance]);
+
   // Initialize authentication state
   useEffect(() => {
     initializeAuth();
