@@ -1,5 +1,4 @@
 import { AuthenticationResult } from '@azure/msal-browser';
-import { graphConfig } from '../config/authConfig';
 
 // SharePoint List Names - Update these to match your actual SharePoint lists
 const SHAREPOINT_LISTS = {
@@ -9,8 +8,6 @@ const SHAREPOINT_LISTS = {
   COURSE_CONTENT: 'CourseContent',
   CERTIFICATES: 'Certificates'
 };
-
-import { AuthenticationResult } from '@azure/msal-browser';
 
 // SharePoint site configuration
 const SHAREPOINT_SITE = {
